@@ -4,6 +4,10 @@
   "private": true,
   "dependencies": {
     "firebase": "^4.12.1",
+    "howler": "^2.0.9",
+    "lodash.orderby": "^4.6.0",
+    "lodash.sample": "^4.2.1",
+    "lodash.sortby": "^4.7.0",
     "react": "^16.3.1",
     "react-components-kit": "^4.2.2",
     "react-dom": "^16.3.1",

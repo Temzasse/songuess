@@ -37,8 +37,12 @@ class App extends Component {
   listenGameData = gameId => {
     this.db.ref(`games/${gameId}`).on('value', snapshot => {
       const game = snapshot.val();
-      if (game) this.setState({ game });
-      else clearGame(); // host deleted the game
+      if (game) {
+        this.setState({ game });
+      } else {
+        this.setState({ game: null, activeGameId: null, playerId: null });
+        clearGame(); // host deleted the game
+      }
     });
   };
 
@@ -46,7 +50,7 @@ class App extends Component {
     const gameId = generateGameId();
     persistGame({ isOwner: true, gameId });
     this.db.ref(`games/${gameId}`).set({ id: gameId }); // create game in db
-    this.setState({ activeGameId: gameId });
+    this.setState({ activeGameId: gameId, isOwner: true });
     this.listenGameData(gameId);
   };
 
@@ -57,9 +61,16 @@ class App extends Component {
     this.setState({ activeGameId: null, isOwner: false, playerId: null });
   };
 
+  endGame = () => {
+    const { game } = this.state;
+    this.db.ref(`games/${game.id}`).update({
+      gameOver: true,
+    });
+  };
+
   joinGame = playerName => {
     const { game } = this.state;
-    const playerId = this.db.ref('games/players').push().key;
+    const playerId = this.db.ref(`games/${game.id}/players`).push().key;
 
     // Add new player to game
     this.db.ref(`games/${game.id}/players/${playerId}`).set({
@@ -82,7 +93,54 @@ class App extends Component {
   };
 
   startGame = () => {
-    console.log('start');
+    const { game } = this.state;
+    this.db.ref(`games/${game.id}`).update({
+      roundActive: true,
+      guesses: null,
+    });
+  };
+
+  endRound = () => {
+    const { game } = this.state;
+    const points = game.points || {};
+
+    // Update player points
+    Object.values(game.players).forEach(player => {
+      const roundGuess = game.guesses[player.id];
+      const currentPoints = points[player.id] || 0;
+      const newPoint = roundGuess.isCorrect ? 1 : 0;
+      points[player.id] = currentPoints + newPoint;
+    });
+
+    this.db.ref(`games/${game.id}`).update({
+      points,
+      guesses: null,
+    });
+  };
+
+  // Add a new guess and later order guesses from first to last by timestamp
+  onBuzzerPressed = () => {
+    const { game, playerId } = this.state;
+    this.db.ref(`games/${game.id}/guesses/${playerId}`).update({
+      playerId,
+      timestamp: Date.now(),
+      pending: true,
+    });
+  };
+
+  // Host marks guess either correct or incorrect
+  markGuess = (playerId, isCorrect) => {
+    const { game } = this.state;
+    this.db.ref(`games/${game.id}/guesses/${playerId}`).update({
+      pending: false,
+      isCorrect,
+    });
+  };
+
+  // Player accidentally pressed the buzzer
+  dismissGuess = playerId => {
+    const { game } = this.state;
+    this.db.ref(`games/${game.id}/guesses/${playerId}`).remove();
   };
 
   render() {
@@ -91,10 +149,11 @@ class App extends Component {
       activeGameId,
       game,
       isOwner,
+      playerId,
       joinModalVisible,
     } = this.state;
 
-    console.log(this.state);
+    console.table(this.state);
 
     if (loading) {
       return (
@@ -145,8 +204,14 @@ class App extends Component {
         <Game
           game={game}
           mode={isOwner ? 'host' : 'player'}
+          playerId={playerId}
           deleteGame={this.deleteGame}
           startGame={this.startGame}
+          endGame={this.endGame}
+          endRound={this.endRound}
+          onBuzzerPressed={this.onBuzzerPressed}
+          markGuess={this.markGuess}
+          dismissGuess={this.dismissGuess}
         />
       </Wrapper>
     );
