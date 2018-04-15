@@ -60,12 +60,17 @@ const BuzzerButton = styled.div`
   position: relative;
 
   &:after {
-    content: '';
+    content: 'Buzz';
+    font-size: 32px;
+    color: #fff;
     position: absolute;
     top: -6px;
     left: 0;
     height: 300px;
     width: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 50%;
     transition: all 0.4s ease;
     background-color: #ff3535;

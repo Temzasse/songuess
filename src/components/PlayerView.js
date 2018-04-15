@@ -52,7 +52,12 @@ class PlayerView extends Component {
     if (buzzerPressed && game.guesses[playerId].isCorrect) {
       return (
         <Centered color={player.color}>
-          <TextWrapper>Correct! 🎉</TextWrapper>
+          <TextWrapper>
+            Correct!{' '}
+            <span role="img" aria-label="tada">
+              🎉
+            </span>
+          </TextWrapper>
         </Centered>
       );
     }
@@ -61,7 +66,12 @@ class PlayerView extends Component {
     if (buzzerPressed && !game.guesses[playerId].isCorrect) {
       return (
         <Centered color={player.color}>
-          <TextWrapper>Incorrect 😈</TextWrapper>
+          <TextWrapper>
+            Incorrect{' '}
+            <span role="img" aria-label="evil">
+              😈
+            </span>
+          </TextWrapper>
         </Centered>
       );
     }
@@ -89,11 +99,10 @@ const Centered = styled.div`
   background: ${props => props.color};
 `;
 
-
 const TextWrapper = styled.span`
   padding: 8px 16px;
   border-radius: 8px;
-  background-color: rgba(0,0,0,0.3);
+  background-color: rgba(0, 0, 0, 0.3);
   color: #fff;
 `;
 

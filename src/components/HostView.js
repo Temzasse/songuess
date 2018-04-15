@@ -26,6 +26,10 @@ class HostView extends Component {
 
     return (
       <Wrapper>
+        <RoundNum>
+          Round: {game.roundNum}
+        </RoundNum>
+
         {guesses.length === 0 && <NoGuesses>No guesses</NoGuesses>}
 
         {guesses.slice(0, 1).map((guess, index) => (
@@ -67,13 +71,13 @@ class HostView extends Component {
         ))}
 
         <GameActions>
-          <GameActionButton danger onClick={this.props.endGame}>
+          <GameActionButton flat danger onClick={this.props.endGame}>
             End game
           </GameActionButton>
 
           <Gutter />
 
-          <GameActionButton onClick={this.props.endRound}>
+          <GameActionButton flat onClick={this.props.endRound}>
             Next round
           </GameActionButton>
         </GameActions>
@@ -89,6 +93,14 @@ const Wrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   position: relative;
+`;
+
+const RoundNum = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
 `;
 
 const NoGuesses = styled(Text)`

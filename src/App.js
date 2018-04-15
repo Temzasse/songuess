@@ -10,6 +10,15 @@ import { generateGradient } from './utils';
 import Game from './components/Game';
 import JoinGame from './components/JoinGame';
 
+const initialState = {
+  isOwner: false,
+  playerId: null,
+  activeGameId: null,
+  loading: true,
+  game: null,
+  joinModalVisible: false,
+};
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -18,13 +27,10 @@ class App extends Component {
 
     this.db = firebase.database();
     this.state = {
+      ...initialState,
       isOwner,
       playerId,
       activeGameId, // ID of the active game
-
-      loading: true,
-      game: null,
-      joinModalVisible: false,
     };
   }
 
@@ -40,32 +46,31 @@ class App extends Component {
       if (game) {
         this.setState({ game });
       } else {
-        this.setState({ game: null, activeGameId: null, playerId: null });
-        clearGame(); // host deleted the game
+        // host deleted the game
+        this.setState({ ...initialState });
+        clearGame();
       }
     });
   };
 
   createGame = () => {
     const gameId = generateGameId();
-    persistGame({ isOwner: true, gameId });
     this.db.ref(`games/${gameId}`).set({ id: gameId }); // create game in db
-    this.setState({ activeGameId: gameId, isOwner: true });
+    this.setState({ activeGameId: gameId, isOwner: true, playerId: 'host' });
     this.listenGameData(gameId);
+    persistGame({ isOwner: true, gameId });
   };
 
   deleteGame = () => {
     const { game } = this.state;
+    this.db.ref(`games/${game.id}`).remove();
+    this.setState({ ...initialState });
     clearGame();
-    this.db.ref(`games/${game.id}`).remove(); // remove from game
-    this.setState({ activeGameId: null, isOwner: false, playerId: null });
   };
 
   endGame = () => {
     const { game } = this.state;
-    this.db.ref(`games/${game.id}`).update({
-      gameOver: true,
-    });
+    this.db.ref(`games/${game.id}`).update({ gameOver: true });
   };
 
   joinGame = playerName => {
@@ -79,10 +84,9 @@ class App extends Component {
       color: generateGradient(),
     });
 
-    persistGame({ isOwner: false, gameId: game.id, playerId });
-
+    this.setState({ activeGameId: game.id, isOwner: false, playerId });
     this.listenGameData(game.id);
-    this.setState({ activeGameId: game.id });
+    persistGame({ isOwner: false, gameId: game.id, playerId });
   };
 
   findGame = gameId => {
@@ -96,25 +100,16 @@ class App extends Component {
     const { game } = this.state;
     this.db.ref(`games/${game.id}`).update({
       roundActive: true,
+      roundNum: 1,
       guesses: null,
     });
   };
 
   endRound = () => {
     const { game } = this.state;
-    const points = game.points || {};
-
-    // Update player points
-    Object.values(game.players).forEach(player => {
-      const roundGuess = game.guesses[player.id];
-      const currentPoints = points[player.id] || 0;
-      const newPoint = roundGuess.isCorrect ? 1 : 0;
-      points[player.id] = currentPoints + newPoint;
-    });
-
     this.db.ref(`games/${game.id}`).update({
-      points,
       guesses: null,
+      roundNum: game.roundNum + 1,
     });
   };
 
@@ -131,10 +126,17 @@ class App extends Component {
   // Host marks guess either correct or incorrect
   markGuess = (playerId, isCorrect) => {
     const { game } = this.state;
+    const points = game.points || {};
+
     this.db.ref(`games/${game.id}/guesses/${playerId}`).update({
       pending: false,
       isCorrect,
     });
+
+    if (isCorrect) {
+      const currentPoints = points[playerId] || 0;
+      this.db.ref(`games/${game.id}/points/${playerId}`).set(currentPoints + 1);
+    }
   };
 
   // Player accidentally pressed the buzzer
@@ -153,7 +155,7 @@ class App extends Component {
       joinModalVisible,
     } = this.state;
 
-    console.table(this.state);
+    console.log('> state', this.state);
 
     if (loading) {
       return (

@@ -21,7 +21,7 @@ const Player = ({ name, color }) => (
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
-  padding: 16px;
+  padding: 16px 0px;
 `;
 
 const PlayerColor = styled.div`

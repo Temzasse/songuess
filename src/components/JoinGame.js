@@ -33,6 +33,7 @@ class JoinModal extends Component {
   };
 
   joinGame = () => {
+    this.props.hide();
     this.props.joinGame(this.state.name);
   };
 

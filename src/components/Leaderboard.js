@@ -18,7 +18,7 @@ class Leaderboard extends Component {
   render() {
     const { game, mode } = this.props;
     const points = orderBy(
-      Object.entries(game.points),
+      Object.entries(game.points || []),
       ([_, points]) => points,
       ['desc']
     );

@@ -5,6 +5,7 @@ import Trash from 'react-icons/lib/io/ios-trash';
 import Gutter from 'react-components-kit/dist/Gutter';
 import Button from 'react-components-kit/dist/Button';
 import Layout from 'react-components-kit/dist/Layout';
+import Heading from 'react-components-kit/dist/Heading';
 import Player from './Player';
 
 const propTypes = {
@@ -29,6 +30,7 @@ const Lobby = ({ mode, game, startGame, deleteGame }) => (
     </Header>
 
     <PlayerList>
+      <PlayerListHeading h2>Players:</PlayerListHeading>
       {game.players ? (
         Object.values(game.players).map(player => (
           <Player key={player.id} {...player} />
@@ -38,8 +40,10 @@ const Lobby = ({ mode, game, startGame, deleteGame }) => (
       )}
     </PlayerList>
 
-    {mode === 'host' && (
-      <StartGameButton onClick={startGame}>Start game</StartGameButton>
+    {mode === 'host' && game.players && (
+      <StartGameFooter>
+        <StartGameButton onClick={startGame}>Start game</StartGameButton>
+      </StartGameFooter>
     )}
   </Wrapper>
 );
@@ -71,16 +75,28 @@ const NoPlayers = styled.div`
   padding: 16px;
 `;
 
+const PlayerListHeading = styled(Heading)`
+  margin-top: 0px;
+  margin-bottom: 8px;
+`;
+
 const PlayerList = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
   overflow-y: auto;
+  padding: 16px;
+`;
+
+const StartGameFooter = styled.div`
+  padding: 16px;
+  width: 100%;
 `;
 
 const StartGameButton = styled(Button)`
   height: 80px;
   width: 100%;
+  font-size: 24px;
 `;
 
 Lobby.propTypes = propTypes;

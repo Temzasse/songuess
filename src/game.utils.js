@@ -19,5 +19,5 @@ export const clearGame = gameId => {
 export const persistGame = ({ gameId, isOwner, playerId }) => {
   localStorage.setItem('songuess-game', gameId);
   localStorage.setItem('songuess-game-owner', isOwner);
-  localStorage.setItem('songuess-player', playerId);
+  if (playerId) localStorage.setItem('songuess-player', playerId);
 };
