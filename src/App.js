@@ -3,10 +3,9 @@ import * as firebase from 'firebase';
 import styled from 'styled-components';
 import Gutter from 'react-components-kit/dist/Gutter';
 import Button from 'react-components-kit/dist/Button';
-import Modal from 'react-components-kit/dist/Modal';
-import Heading from 'react-components-kit/dist/Heading';
 
-import { loadGame, clearGame, generateGameId, persistGame } from './utils';
+import { loadGame, clearGame, generateGameId, persistGame } from './game.utils';
+import { generateGradient } from './utils';
 
 import Game from './components/Game';
 import JoinGame from './components/JoinGame';
@@ -30,45 +29,29 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.init();
-  }
-
-  init = () => {
     const { activeGameId } = this.state;
-
-    if (!activeGameId) {
-      this.setState({ loading: false });
-    } else {
-      this.setState({ loading: false });
-      this.listenGameData(activeGameId);
-    }
-  };
+    if (activeGameId) this.listenGameData(activeGameId);
+    this.setState({ loading: false });
+  }
 
   listenGameData = gameId => {
     this.db.ref(`games/${gameId}`).on('value', snapshot => {
       const game = snapshot.val();
-
-      if (game) {
-        this.setState({ game });
-      } else {
-        // Someone deleted the game
-        clearGame();
-      }
+      if (game) this.setState({ game });
+      else clearGame(); // host deleted the game
     });
   };
 
   createGame = () => {
     const gameId = generateGameId();
-
-    this.db.ref(`games/${gameId}`).set({ id: gameId }); // create game
     persistGame({ isOwner: true, gameId });
+    this.db.ref(`games/${gameId}`).set({ id: gameId }); // create game in db
     this.setState({ activeGameId: gameId });
     this.listenGameData(gameId);
   };
 
   deleteGame = () => {
     const { game } = this.state;
-
     clearGame();
     this.db.ref(`games/${game.id}`).remove(); // remove from game
     this.setState({ activeGameId: null, isOwner: false, playerId: null });
@@ -82,7 +65,7 @@ class App extends Component {
     this.db.ref(`games/${game.id}/players/${playerId}`).set({
       id: playerId,
       name: playerName,
-      color: 'red',
+      color: generateGradient(),
     });
 
     persistGame({ isOwner: false, gameId: game.id, playerId });

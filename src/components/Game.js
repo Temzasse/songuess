@@ -2,10 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Trash from 'react-icons/lib/io/ios-trash';
-
 import Gutter from 'react-components-kit/dist/Gutter';
 import Button from 'react-components-kit/dist/Button';
 import Layout from 'react-components-kit/dist/Layout';
+
+import Player from './Player';
 
 class Game extends Component {
   static propTypes = {
@@ -23,13 +24,7 @@ class Game extends Component {
     const { game: { players } } = this.props;
     return (
       Object.values(players).map(player => (
-        <Player key={player.id}>
-          <PlayerColor color={player.color} />
-          <Gutter />
-          <PlayerName>
-            {player.name}
-          </PlayerName>
-        </Player>
+        <Player key={player.id} {...player} />
       ))
     );
   };
@@ -44,7 +39,9 @@ class Game extends Component {
           <Gutter />
           <GameID>{game.id}</GameID>
           <Layout.Box flex={1} />
-          <Trash size={32} color="#888" onClick={this.props.deleteGame} />
+          {mode === 'host' &&
+            <Trash size={32} color="#888" onClick={this.props.deleteGame} />
+          }
         </Header>
 
         <PlayerList>
@@ -97,23 +94,6 @@ const PlayerList = styled.div`
   flex: 1;
   flex-direction: column;
   overflow-y: auto;
-`;
-
-const Player = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 16px;
-`;
-
-const PlayerColor = styled.div`
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background-color: ${props => props.color};
-`;
-
-const PlayerName = styled.span`
-  font-size: 18px;
 `;
 
 const StartGameButton = styled(Button)`

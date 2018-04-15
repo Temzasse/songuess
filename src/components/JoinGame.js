@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
+// import styled from 'styled-components';
 import Gutter from 'react-components-kit/dist/Gutter';
 import Button from 'react-components-kit/dist/Button';
 import Modal from 'react-components-kit/dist/Modal';
@@ -83,7 +83,5 @@ class JoinModal extends Component {
     );
   }
 }
-
-const JoinModalWrapper = styled.div``;
 
 export default JoinModal;

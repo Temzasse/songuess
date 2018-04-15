@@ -1,32 +1,18 @@
-import * as firebase from 'firebase';
+export const alphabetically = (a, b, key) => {
+  if (key) {
+    if (a[key] < b[key]) return -1;
+    if (a[key] > b[key]) return 1;
+  }
 
-// Game --------------------------------------------------------------------
+  if (a < b) return -1;
+  if (a > b) return 1;
 
-export const generateGameId = () => {
-  return Math.floor(10000 + Math.random() * 90000);
+  return 0;
 };
 
-export const loadGame = () => {
-  const playerId = localStorage.getItem('songuess-player');
-  const activeGameId = localStorage.getItem('songuess-game');
-  let isOwner = localStorage.getItem('songuess-game-owner');
-  isOwner = isOwner === 'true' ? true : false;
-  return { playerId, activeGameId, isOwner };
-};
+export const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
-export const clearGame = gameId => {
-  localStorage.removeItem('songuess-player');
-  localStorage.removeItem('songuess-game');
-  localStorage.removeItem('songuess-game-owner');
-};
-
-export const persistGame = ({ gameId, isOwner, playerId }) => {
-  localStorage.setItem('songuess-game', gameId);
-  localStorage.setItem('songuess-game-owner', isOwner);
-  localStorage.setItem('songuess-player', playerId);
-};
-
-// Other --------------------------------------------------------------------
+export const range = num => [...Array(num).keys()];
 
 export const generateGradient = () => {
   const hexValues = [
