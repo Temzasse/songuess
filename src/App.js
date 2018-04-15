@@ -47,7 +47,7 @@ class App extends Component {
         this.setState({ game });
       } else {
         // host deleted the game
-        this.setState({ ...initialState });
+        this.setState({ ...initialState, loading: false });
         clearGame();
       }
     });
@@ -64,7 +64,7 @@ class App extends Component {
   deleteGame = () => {
     const { game } = this.state;
     this.db.ref(`games/${game.id}`).remove();
-    this.setState({ ...initialState });
+    this.setState({ ...initialState, loading: false });
     clearGame();
   };
 
